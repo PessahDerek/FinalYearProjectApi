@@ -1,5 +1,6 @@
-import {Document} from "mongoose";
+import {Document, Expression} from "mongoose";
 import {NextFunction, Request, Response} from "express";
+import DateToString = module
 
 declare global {
     namespace NodeJS {
@@ -18,7 +19,8 @@ declare interface UserProfile {
     lastName: string;
     phone: string;
     email: string;
-    role?: role
+    role?: role;
+    createdAt: string;
 }
 declare interface LoginDetails {
     identifier: string ; // name | phone | email
@@ -38,6 +40,10 @@ declare interface MemberModel extends Document, UserProfile {
     password: string;
     verified: boolean;
 }
+declare interface LoanHistory {
+    amount: number;
+    date: string;
+}
 declare interface LoanModel extends Document {
     userId: string;
     principal: number;
@@ -46,7 +52,11 @@ declare interface LoanModel extends Document {
     interest: number; // is percentage
     penaltyRate: number; // is percentage
     paid: boolean;
-    approved: boolean
+    approved: boolean;
+    pending: boolean;
+    defaulted: boolean;
+    history: LoanHistory[]
+    createdAt: Date
 }
 
 declare interface ShareHistory {
@@ -58,6 +68,14 @@ declare interface ShareModel extends Document {
     member: MemberModel;
     realValue: Number;
     history: ShareHistory[];
+}
+declare interface ChamaModel extends Document {
+    name: string;
+    interestRate: number;
+    penaltyRate: number;
+    members: MemberModel[];
+    loans: LoanModel[];
+    shares: ShareModel[];
 }
 
 declare type role = 'admin' | 'member';
@@ -73,10 +91,24 @@ declare type Handler = (req: RequestObj, res: Response, next: NextFunction) => v
 declare interface LoanRequest {
     amount: number;
     password: string;
+    deadline: DateToString;
 }
+
+declare interface LoaneeStat {
+    member: MemberModel;
+    shares: ShareModel;
+    loans: LoanModel[]
+}
+
+declare interface RepayObj {
+    loanId: string;
+    userId: string;
+    amount: number;
+}
+
 
 export {
     MemberModel, SignupDetails, LoginDetails, UserProfile, AuthResponse, Handler, role,LoanModel,ShareModel, ShareHistory,
-    LoanRequest,
+    LoanRequest, ChamaModel,LoaneeStat, RepayObj, LoanHistory
 }
 

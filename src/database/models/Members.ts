@@ -1,6 +1,7 @@
 import {model, Schema} from "mongoose";
 import {MemberModel} from "../../../env";
 import {encryptString} from "../../libs/encrypters";
+import Chama from "../../handlers/access/Chama";
 
 
 const Members = new Schema<MemberModel>({
@@ -10,11 +11,32 @@ const Members = new Schema<MemberModel>({
     phone: { type: String, required: [true, "A valid phone number is required!"]},
     password: {type: String, required: [true, "A password is required!"], select: false},
     verified: {type: Boolean, default: false},
-    role: {type: String, required: false, default: 'member'}
-})
+    role: {type: String, required: false, default: 'member'},
+}, {timestamps: true})
 
 Members.pre('save', function (next){
     this.password = encryptString(this.password)
+    next()
+})
+
+// update in chama
+Members.post("save", async function (res, next){
+    try{
+        if(res.verified) {
+            const chama = await Chama.findOne({})
+            if (!chama) throw new Error("No chama model found!");
+            chama.members = [...chama.members, res._id]
+            await chama.save()
+                .then(() => console.log("\tSERVICE: (Success)Member added to chama"))
+                .catch(err => {
+                    throw new Error(err)
+                })
+        }
+        next()
+    } catch (e) {
+        console.log(`\tSERVICE: (Failure) Error saving to member in chama:
+        \t${e}`)
+    }
     next()
 })
 export default model("Members", Members)

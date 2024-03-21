@@ -9,6 +9,7 @@ export const verifyEmail: Handler = async (req, res, next) => {
     if(isValid){
         next()
     } else {
+        console.log(`\t(MIDDLEWARE)Invalid Email: ${email}`)
         respond(res, 400, "Please use valid email!")
     }
 }

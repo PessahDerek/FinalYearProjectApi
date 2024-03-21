@@ -12,16 +12,24 @@ export const ConnectDatabase = () => {
             })
                 .catch(err => {
                     console.log("Error connecting to database\nRetrying in 3 seconds...")
+                    reject(err)
                     setTimeout(()=>{
                         return ConnectDatabase()
                     }, 3000)
                 })
         }
     )
-    mongoose.connection?.on('error', ()=>{
-        console.log("Mongoose ran into an error!\nRetrying the connection in 3 seconds...")
-        setTimeout(()=>connectDatabase, 3000)
-    })
+    if(mongoose.connection){
+        mongoose.connection?.on('error', ()=>{
+            console.log("Mongoose ran into an error!\nRetrying the connection in 3 seconds...")
+            setTimeout(()=>connectDatabase, 3000)
+        })
+        mongoose.connection.on('disconnected', ()=>{
+            console.log("Disconnected")
+        })
+    }
+
     return connectDatabase;
 }
+
 

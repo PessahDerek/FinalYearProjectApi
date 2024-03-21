@@ -5,7 +5,7 @@ import Members from "../../database/models/Members";
 import mongoose from "mongoose";
 
 
-export const signup: Handler = async (req, res)=> {
+export const signup: Handler = async (req, res, next)=> {
     const { firstName,lastName,phone, email, password, confirmPassword  } = req.body as SignupDetails;
     // verify all fields
     const invalid = !firstName || !lastName || !phone || !email || !password || !confirmPassword;
@@ -22,14 +22,18 @@ export const signup: Handler = async (req, res)=> {
         .then(profile=>{
             const token = generateToken(profile._id.toString(), profile.role??"member")
             delete profile._id
-            respond(res, 200, "Welcome to Umoja Teachers🎉" ,{
-                profile: profile.toObject()
+            respond(res, 200, "Welcome to Umoja Teachers" ,{
+                profile: profile.toObject(),
+                token: token
             })
         })
         .catch(err => {
-            if(err instanceof mongoose.MongooseError)
+            if(err instanceof mongoose.MongooseError) {
+                console.log(`\t(HANDLER: ): ${err}`)
                 return respond(res, 500, err.message)
-            respond(res, 500, "Sorry, something went wrong!")
+            }
+            respond(res, 500, `\t(HANDLER: error)Sorry, something went wrong!
+${err}`)
         })
 }
 
