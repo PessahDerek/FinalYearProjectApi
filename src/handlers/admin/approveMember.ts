@@ -7,14 +7,14 @@ import mongoose from "mongoose";
 
 
 export const approveMember: Handler = async (req, res) => {
-    const { userId, initialShare, approved, role, denialReason } = req.body;
+    const { userId, role, initial } = req.body;
+    const approved = req.method.toLowerCase() === 'put';
     if(!approved){
         // update
         return await Members.findByIdAndDelete(userId)
             .then(() => {
                 const newDenied = new DeniedAdmissions({
                     _id: userId,
-                    reason: denialReason
                 })
                 newDenied.save()
                     .then(()=>respond(res, 200, "Changes saved!"))
@@ -27,10 +27,11 @@ export const approveMember: Handler = async (req, res) => {
             })
         ;
     }
+    console.log("here...")
     // verify user
     const member = await Members.findById(userId)
     if(!member) return respond(res, 200, "Sorry, we could not find the user!")
-
+    if(member.verified) return respond(res, 200, "User is already verified!")
     // update user
     member.verified = true
     member.role = role;
@@ -39,12 +40,13 @@ export const approveMember: Handler = async (req, res) => {
             // create shares
             const newShare = new Shares({
                 member: new mongoose.Types.ObjectId(userId),
-                realValue: initialShare,
+                realValue: initial,
                 history: [
-                    {amount: initialShare, date: new Date(), mode: 'debit'}
+                    {amount: initial, date: new Date(), mode: 'debit'}
                 ]
             })
             await newShare.save()
+                .then(()=>respond(res, 200, "Member has been verified!"))
                 .catch(err => console.log(`Failed to create Shares table: ${err}`))
         })
 }
