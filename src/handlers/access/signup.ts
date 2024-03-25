@@ -3,6 +3,7 @@ import {SignupDetails} from "../../../env";
 import {emailIsValid, generateToken, respond} from "../../libs/shortFunctions";
 import Members from "../../database/models/Members";
 import mongoose from "mongoose";
+import DeniedAdmissions from "../../database/models/DeniedAdmissions";
 
 
 export const signup: Handler = async (req, res, next)=> {
@@ -17,6 +18,10 @@ export const signup: Handler = async (req, res, next)=> {
             {phone: phone}, {email: email}
         ]})
     if(found) return respond(res, 400, "A similar account exists! Try logging in or check your credentials")
+    const banned = await DeniedAdmissions.findOne({$or: [
+            {phone: phone}, {email: email}
+        ]})
+    if(banned) return respond(res, 403, "You request to join was denied, you are not allowed to register or log in! Reach the admin for further clearance")
     const newMember = new Members(req.body);
     await newMember.save()
         .then(profile=>{

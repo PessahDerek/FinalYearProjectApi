@@ -1,7 +1,6 @@
-import {model, Schema} from "mongoose";
-import {LoanModel} from "../../../env";
+import mongoose, {model, Schema, Types} from "mongoose";
+import {LoanModel, ShareHistory} from "../../../env";
 import Chama from "../../handlers/access/Chama";
-
 
 const Loans = new Schema<LoanModel>({
     userId: String,
@@ -28,14 +27,16 @@ Loans.post('save', async function (res, next){
         await chama.save()
             .then(() => {
                 console.log(`\tSERVICE: (Success) Updated Chama successfully`);
+                next()
             })
             .catch(err => {
                 console.log(`\tSERVICE: (failure) Failed to update to Chama model\t\tReason: ${err}`);
+                throw new Error(err)
             })
     } catch (e) {
         console.log(`\tSERVICE: (failure) Failed to update to Chama model\t\tReason: ${e}`);
+        next()
     }
-    next();
 })
-
 export default model("Loans", Loans)
+

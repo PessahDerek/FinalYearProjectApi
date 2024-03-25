@@ -11,7 +11,7 @@ export const adminRoutes: Router = Router();
 adminRoutes
     .get("/loan-stats", loanStatistics)
     .put("/approve-member", approveMember)
-    .delete('/approve-member', approveMember)
+    .delete('/approve-member/:user_id', approveMember)
     .post("/approve-loans", approveLoans)
     .post("/update-loans", updateLoans)
     .post("/update-shares", updateShares)

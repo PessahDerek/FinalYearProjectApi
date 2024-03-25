@@ -9,15 +9,10 @@ const Shares = new Schema<ShareModel>({
     member: {type: mongoose.Types.ObjectId, ref: 'Members'}
 })
 
-// @ts-ignore
-Shares.pre("", function(next, ops, x){
-    console.log(ops)
-    next()
-})
 
-Shares.post("save", async function (res, next){
-    try{
-        if(this.isNew) {
+Shares.post("save", async function (res, next) {
+    try {
+        if (this.isNew) {
             const chama = await Chama.findOne({})
             if (!chama) throw new Error("No chama model found!");
             chama.shares = [...chama.shares, res._id]

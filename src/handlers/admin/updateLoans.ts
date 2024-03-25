@@ -17,7 +17,6 @@ export const updateLoans: Handler = async (req, res) => {
 
     await Loans.bulkWrite(bulkOperations)
         .then(result => {
-            console.log(result)
             respond(res, 200, "List has been updated!")
         })
         .catch(err => {

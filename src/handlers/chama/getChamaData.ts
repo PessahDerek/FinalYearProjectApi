@@ -30,10 +30,10 @@ export const getChamaDataForApp: Handler = async (req, res) => {
 
     respond(res, 200, "ok", {
         unpaidLoans: [...chama.loans.filter(loan => !loan.paid && loan.approved)],
-        paidLoans: [...chama.loans.filter(loan => !loan.paid && loan.approved)],
+        paidLoans: [...chama.loans.filter(loan => loan.paid && loan.approved)],
         pendingLoans: [...chama.loans.filter(loan => !loan.approved)],
         shares: [...chama.shares],
-        totalShares: chama.shares.reduce((acc, curr)=>acc+Number(curr.realValue), 0),
+        totalShares: chama.shares.reduce((acc, curr)=>acc+Number(curr.history.reduce((ac, cur)=>ac+cur.amount, 0)), 0),
         members: chama.members,
         unverified: [...members.filter(f => !f.verified)]
     })

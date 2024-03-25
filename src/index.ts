@@ -4,6 +4,7 @@ import cors from 'cors'
 import dotenv from 'dotenv'
 import {ConnectDatabase} from "./database/init";
 import Routes from "./routes/indexRoutes";
+import {myMorgan} from "./middleware/myMorgan";
 dotenv.config();
 
 const app = Express();
@@ -16,6 +17,7 @@ app.use(cors({
     exposedHeaders: 'Denied_admission'
 }))
 
+app.use(myMorgan)
 app.use("/api", Routes)
 
 ConnectDatabase()

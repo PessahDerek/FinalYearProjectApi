@@ -23,7 +23,7 @@ export const updateShares: Handler = async (req, res) => {
             console.log(result)
             if(result.modifiedCount !== list.length)
                 return respond(res, 200, "Some accounts have not been successfully updated!")
-            respond(res, 200, "ALl shares updated!")
+            respond(res, 200, "All shares updated!")
         })
         .catch(err => {
             console.log("\t(API): Error saving shares");

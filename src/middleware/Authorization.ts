@@ -19,7 +19,8 @@ export const Authorization: Handler = async (req, res, next) => {
             const unverified = await DeniedAdmissions.findById(decoded.user_id);
             if(unverified) {
                 res.setHeader("Denied_admission", `${new Date().toString()}`)
-                return (respond(res, 403, unverified.reason??"It seems your request to join was refused, you will be logged out! Please try sending a new signup request"))
+                return (respond(res, 403, "It seems your request to join was denied, " +
+                    "you will be logged out! Please try sending a new signup request"))
             }
 
             // for admin routes

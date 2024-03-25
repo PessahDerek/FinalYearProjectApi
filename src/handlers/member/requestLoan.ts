@@ -27,17 +27,26 @@ export const requestLoan: Handler = async (req, res, next) => {
 
     // get chama props to find updated properties of interest and penalty rates
     const chama = await Chama.findOne({name: "Umoja Teachers Self-Help Group"})
-        .select("penaltyRate interestRate")
+        .select("penaltyRate interestRate shares")
+        .populate("shares")
     if(chama === null)return respond(res, 500, "Sorry, something went wrong please again later!")
-
-    // make sure deadline is not less than a month
-    const diff = new Date(Date.now()+2629632000).getMilliseconds() - new Date(deadline).getMilliseconds();
-    if(Math.floor(diff) < 30) return respond(res, 400, "Deadline has to be at least a month (30 days) from today!");
 
     // expected loan value
     const value = calculateLoanValue(
         chama.interestRate, amount, new Date(deadline)
     )
+    // make sure they are borrowing an amount they can pay back;
+    const userShares = chama.shares.find(m => m.member.toString() === req.auth?.user_id);
+    if(!userShares) return respond(res, 400, "Sorry, something went wrong, please contact treasurer!");
+    if(userShares.history.reduce((acc, curr)=>acc+curr.amount,0) > value){
+        return respond(res, 400, 'Sorry, you cannot request a loan higher than your shares!')
+    }
+
+    // make sure deadline is not less than a month
+    const diff = new Date(Date.now()+2629632000).getMilliseconds() - new Date(deadline).getMilliseconds();
+    if(Math.floor(diff) < 30) return respond(res, 400, "Deadline has to be at least a month (30 days) from today!");
+
+
     const newLoan = new Loans({
         principal: amount,
         userId: req.auth?.user_id as string,
