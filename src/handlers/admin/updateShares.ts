@@ -20,13 +20,12 @@ export const updateShares: Handler = async (req, res) => {
     }));
     await Shares.bulkWrite(bulkOperations)
         .then(result => {
-            console.log(result)
             if(result.modifiedCount !== list.length)
                 return respond(res, 200, "Some accounts have not been successfully updated!")
             respond(res, 200, "All shares updated!")
         })
         .catch(err => {
-            console.log("\t(API): Error saving shares");
+            console.log(`\t(API): Error saving shares: ${err}`);
             respond(res, 500, "Sorry, something went wrong while trying to update!")
         })
 }
