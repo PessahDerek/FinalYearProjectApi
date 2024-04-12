@@ -38,7 +38,7 @@ export const requestLoan: Handler = async (req, res, next) => {
     // make sure they are borrowing an amount they can pay back;
     const userShares = chama.shares.find(m => m.member.toString() === req.auth?.user_id);
     if(!userShares) return respond(res, 400, "Sorry, something went wrong, please contact treasurer!");
-    if(userShares.history.reduce((acc, curr)=>acc+curr.amount,0) > value){
+    if(value > userShares.history.reduce((acc, curr)=>acc+curr.amount,0)){
         return respond(res, 400, 'Sorry, you cannot request a loan higher than your shares!')
     }
 
